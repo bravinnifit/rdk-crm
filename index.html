@@ -2,56 +2,43 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RDK GROUP - CRM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap');
-        body { background-color: #0a0a0a; color: white; }
+        body { background-color: #0a0a0a; color: white; overflow-x: hidden; }
         .font-syne { font-family: 'Syne', sans-serif; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <div id="login-screen" class="min-h-screen flex items-center justify-center">
-        <div class="bg-zinc-900 p-10 rounded-3xl border border-white/10 w-full max-w-sm text-center">
-            <h1 class="font-syne text-3xl mb-8">RDK<span class="text-lime-400 text-5xl">.</span></h1>
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-zinc-900 p-10 rounded-3xl border border-white/10 w-full max-w-sm text-center shadow-2xl">
+            <h1 class="font-syne text-3xl mb-8">RDK<span class="text-lime-400">.</span></h1>
             
             <div class="space-y-4">
-                <input id="user" type="text" placeholder="Usuário" class="w-full bg-zinc-800 border border-white/5 p-4 rounded-xl outline-none focus:border-lime-400">
-                <input id="pass" type="password" placeholder="Senha" class="w-full bg-zinc-800 border border-white/5 p-4 rounded-xl outline-none focus:border-lime-400">
+                <input id="user" type="text" placeholder="Usuário" class="w-full bg-zinc-800 border border-white/5 p-4 rounded-xl outline-none focus:border-lime-400 text-white">
+                <input id="pass" type="password" placeholder="Senha" class="w-full bg-zinc-800 border border-white/5 p-4 rounded-xl outline-none focus:border-lime-400 text-white">
                 
-                <button onclick="entrar()" class="w-full bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-500 transition-all">
-                    ENTRAR AGORA
+                <button onclick="tentarLogar()" class="w-full bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-500 transition-all active:scale-95">
+                    ENTRAR NO SISTEMA
                 </button>
             </div>
-            <p id="msg" class="text-red-500 text-xs mt-4 hidden">Preencha os campos!</p>
+            <p id="msg" class="text-red-500 text-xs mt-4 hidden">Preencha usuário e senha!</p>
         </div>
     </div>
 
-    <div id="dashboard" class="hidden p-8">
+    <div id="dashboard" class="hidden min-h-screen p-6 md:p-10">
         <nav class="flex justify-between items-center mb-10 border-b border-white/10 pb-6">
-            <h2 class="font-syne text-xl">RDK DASHBOARD</h2>
-            <button onclick="location.reload()" class="text-white/40">Sair</button>
+            <h2 class="font-syne text-xl tracking-tighter">RDK <span class="text-lime-400">DASHBOARD</span></h2>
+            <button onclick="sair()" class="bg-white/5 px-4 py-2 rounded-lg text-xs hover:bg-red-500/20 hover:text-red-500 transition-all">
+                Sair do Sistema
+            </button>
         </nav>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-zinc-900 p-8 rounded-3xl border border-white/5">
-                <p class="text-xs text-white/40 uppercase">Total Vendas</p>
-                <h3 class="text-3xl font-syne text-lime-400">R$ 45.200</h3>
-            </div>
-            <div class="bg-zinc-900 p-8 rounded-3xl border border-white/5 col-span-2">
-                <p class="text-xs text-white/40 uppercase">Status do Sistema</p>
-                <h3 class="text-xl mt-2 text-green-500 font-bold">● Conectado e Operacional</h3>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function entrar() {
-            const u = document.getElementById('user').value;
-            const p = document.getElementById('pass').value;
-
-            if (u !== "" && p !== "") {
-                // ESCONDE O LOGIN
-                document.getElementById('login-screen').style.display = 'none';
-                //
+                <p class="text-[10px] text-white/40 uppercase tracking-widest">Faturamento</p>
+                <h3 class="text-3
