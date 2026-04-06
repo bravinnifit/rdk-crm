@@ -1,155 +1,186 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RDK GROUP — CRM Afiliados</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-:root {
-  --bg: #0a0a0a;
-  --surface: #111111;
-  --surface2: #181818;
-  --border: rgba(255,255,255,0.08);
-  --accent: #e8ff47;
-  --text: #f0f0f0;
-  --muted: #888;
-}
-body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
-.font-syne { font-family: 'Syne', sans-serif; }
-.hidden { display: none !important; }
-/* Estilos da Tabela e Badges */
-.badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-.badge-ativo { background: rgba(77,255,145,0.1); color: #4dff91; border: 1px solid rgba(77,255,145,0.2); }
-.badge-pendente { background: rgba(255,184,77,0.1); color: #ffb84d; border: 1px solid rgba(255,184,77,0.2); }
-</style>
-</head>
-<body class="min-h-screen">
+// netlify/functions/sync.js
+// RDK GROUP — Motor de Sincronização Bling v3
+// Variáveis de ambiente necessárias no Netlify:
+//   SUPABASE_URL, SUPABASE_SERVICE_KEY
+//   BLING_CLIENT_ID, BLING_CLIENT_SECRET, BLING_REFRESH_TOKEN
 
-<div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
-  <div class="bg-[#111] border border-white/10 p-10 rounded-[32px] w-full max-w-sm text-center shadow-2xl">
-    <div class="text-[#e8ff47] font-syne text-[10px] tracking-[0.2em] uppercase mb-8">RDK GROUP</div>
-    <h1 class="font-syne text-3xl font-extrabold mb-8 text-white">CRM <span class="text-[#e8ff47]">.</span></h1>
-    <div class="space-y-4">
-        <input id="login-email" type="email" placeholder="E-mail" class="w-full bg-[#181818] border border-white/5 rounded-2xl px-5 py-4 text-sm outline-none focus:border-[#e8ff47]">
-        <input id="login-password" type="password" placeholder="Senha" class="w-full bg-[#181818] border border-white/5 rounded-2xl px-5 py-4 text-sm outline-none focus:border-[#e8ff47]">
-        <button onclick="doLogin()" class="w-full bg-[#e8ff47] text-black font-syne font-bold rounded-2xl py-4 hover:scale-[1.02] transition-all">ENTRAR</button>
-    </div>
-    <p id="login-error" class="text-red-500 text-xs mt-4 hidden"></p>
-  </div>
-</div>
+const { createClient } = require('@supabase/supabase-js');
 
-<div id="app" class="hidden flex flex-col min-h-screen">
-  <nav class="border-b border-white/5 p-6 flex justify-between items-center bg-[#0a0a0a]/50 backdrop-blur-xl sticky top-0 z-50">
-      <div class="font-syne font-bold tracking-tighter text-xl">RDK<span class="text-[#e8ff47]">GROUP</span></div>
-      <div class="flex items-center gap-4">
-          <button onclick="triggerSync()" class="bg-white/5 hover:bg-white/10 text-[10px] px-4 py-2 rounded-xl uppercase font-bold transition-all">⟳ Sincronizar Bling</button>
-          <button onclick="doLogout()" class="text-xs text-white/40 hover:text-red-500">Sair</button>
-      </div>
-  </nav>
+const sb = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+);
 
-  <main class="p-6 max-w-7xl mx-auto w-full space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-          <div class="bg-[#111] border border-white/5 p-8 rounded-[32px]">
-              <p class="text-[10px] text-white/40 uppercase tracking-widest mb-2">Vendas/Mês</p>
-              <h2 id="stat-mes" class="text-3xl font-syne font-bold text-[#e8ff47]">R$ 0,00</h2>
-          </div>
-          <div class="bg-[#111] border border-white/5 p-8 rounded-[32px]">
-              <p class="text-[10px] text-white/40 uppercase tracking-widest mb-2">Afiliados Ativos</p>
-              <h2 id="stat-ativos" class="text-3xl font-syne font-bold">0</h2>
-          </div>
-          <div class="bg-[#111] border border-white/5 p-8 rounded-[32px]">
-              <p class="text-[10px] text-white/40 uppercase tracking-widest mb-2">Total Acumulado</p>
-              <h2 id="stat-total" class="text-3xl font-syne font-bold">R$ 0,00</h2>
-          </div>
-      </div>
+const BLING_BASE = 'https://www.bling.com.br/Api/v3';
+const CLIENT_ID     = process.env.BLING_CLIENT_ID;
+const CLIENT_SECRET = process.env.BLING_CLIENT_SECRET;
+let   REFRESH_TOKEN = process.env.BLING_REFRESH_TOKEN;
 
-      <div class="bg-[#111] border border-white/5 rounded-[32px] overflow-hidden">
-          <table class="w-full text-left">
-              <thead class="text-[10px] text-white/30 uppercase tracking-widest bg-white/5 border-b border-white/5">
-                  <tr>
-                      <th class="p-6">@TikTok</th>
-                      <th class="p-6">Nome / ID Bling</th>
-                      <th class="p-6">Status</th>
-                      <th class="p-6 text-right">Total Acumulado</th>
-                  </tr>
-              </thead>
-              <tbody id="affiliates-tbody" class="text-sm">
-                  </tbody>
-          </table>
-      </div>
-  </main>
-</div>
+exports.handler = async (event) => {
+  if (event.httpMethod !== 'POST') {
+    return resp(405, { error: 'Método não permitido' });
+  }
 
-<script>
-// Configurações do Supabase extraídas do seu ficheiro
-const SUPABASE_URL = 'https://gxuhlndisvpelnjunhgc.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4dWhsbmRpc3ZwZWxuanVuaGdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MTUyMzgsImV4cCI6MjA5MDk5MTIzOH0.x6swLKQNRAWupZ14c0TSqjpO1N0oQ-EfSgd3sgINIIY';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  // Verifica autenticação Supabase
+  const auth = event.headers.authorization || '';
+  if (!auth.startsWith('Bearer ')) return resp(401, { error: 'Não autorizado' });
+  const { data: { user }, error: authErr } = await sb.auth.getUser(auth.replace('Bearer ', ''));
+  if (authErr || !user) return resp(401, { error: 'Token inválido' });
 
-// Autenticação
-async function doLogin() {
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
-    const { error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) {
-        const errEl = document.getElementById('login-error');
-        errEl.textContent = "Credenciais inválidas";
-        errEl.classList.remove('hidden');
-    } else {
-        location.reload();
+  const stats = { pedidos: 0, novos_afiliados: 0, atualizados: 0, erros: [] };
+
+  try {
+    // 1. Renova access token via refresh token
+    const accessToken = await renovarToken();
+
+    // 2. Busca pedidos dos últimos 60 dias
+    const pedidos = await buscarPedidos(accessToken);
+
+    // 3. Processa cada pedido
+    for (const pedido of pedidos) {
+      try {
+        await processarPedido(pedido, stats);
+        stats.pedidos++;
+      } catch (e) {
+        stats.erros.push(`Pedido ${pedido.numero}: ${e.message}`);
+      }
     }
-}
 
-async function doLogout() { await sb.auth.signOut(); location.reload(); }
+    // 4. Recalcula totais
+    await recalcularTotais();
 
-// Carregamento de Dados
-async function loadDashboard() {
-    // Busca afiliados da tabela base
-    const { data: afiliados, error } = await sb.from('afiliados').select('*').order('total_vendas_acumulado', { ascending: false });
-    
-    if (error) { console.error(error); return; }
+    return resp(200, { sucesso: true, ...stats });
 
-    const ativos = afiliados.filter(a => a.status_ativacao === 'Ativo').length;
-    const totalSoma = afiliados.reduce((acc, a) => acc + Number(a.total_vendas_acumulado || 0), 0);
-
-    document.getElementById('stat-ativos').textContent = ativos;
-    document.getElementById('stat-total').textContent = totalSoma.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-    const tbody = document.getElementById('affiliates-tbody');
-    tbody.innerHTML = afiliados.map(a => `
-        <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-all cursor-pointer">
-            <td class="p-6 text-[#e8ff47]">@${a.username_tiktok || '—'}</td>
-            <td class="p-6 font-bold">${a.nome_real}<br><span class="text-[10px] text-white/20">ID: ${a.bling_vendedor_id}</span></td>
-            <td class="p-6"><span class="badge ${a.status_ativacao === 'Ativo' ? 'badge-ativo' : 'badge-pendente'}">${a.status_ativacao}</span></td>
-            <td class="p-6 text-right font-syne font-bold">R$ ${Number(a.total_vendas_acumulado || 0).toLocaleString('pt-BR')}</td>
-        </tr>
-    `).join('');
-}
-
-// Sincronização (Chama a sua Netlify Function do ficheiro sync.js)
-async function triggerSync() {
-    alert("Iniciando sincronização com Bling... Verifique o log do Netlify.");
-    const { data: { session } } = await sb.auth.getSession();
-    await fetch('/.netlify/functions/sync', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + session.access_token }
-    });
-    loadDashboard();
-}
-
-// Inicialização
-window.onload = async () => {
-    const { data: { session } } = await sb.auth.getSession();
-    if (session) {
-        document.getElementById('login-screen').classList.add('hidden');
-        document.getElementById('app').classList.remove('hidden');
-        loadDashboard();
-    }
+  } catch (e) {
+    console.error('[sync]', e);
+    return resp(500, { error: e.message });
+  }
 };
-</script>
-</body>
-</html>
+
+// ── Renova o access token ──────────────────────────────────
+async function renovarToken() {
+  const body = new URLSearchParams({
+    grant_type:    'refresh_token',
+    refresh_token: REFRESH_TOKEN,
+    client_id:     CLIENT_ID,
+    client_secret: CLIENT_SECRET,
+  });
+
+  const res = await fetch(`${BLING_BASE}/oauth/token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString()
+  });
+
+  if (!res.ok) throw new Error(`Erro ao renovar token: ${await res.text()}`);
+  const data = await res.json();
+
+  // Salva novo refresh token no Supabase para uso futuro
+  if (data.refresh_token && data.refresh_token !== REFRESH_TOKEN) {
+    REFRESH_TOKEN = data.refresh_token;
+    await sb.from('sync_config').upsert({ chave: 'bling_refresh_token', valor: data.refresh_token });
+  }
+
+  return data.access_token;
+}
+
+// ── Busca todos os pedidos com paginação ─────────────────
+async function buscarPedidos(token) {
+  const todos = [];
+  const dataInicio = diasAtras(60);
+  let pagina = 1;
+
+  while (true) {
+    const url = `${BLING_BASE}/pedidos/vendas?pagina=${pagina}&limite=100&dataInicial=${dataInicio}`;
+    const res = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+    });
+
+    if (res.status === 429) { await sleep(1000); continue; }
+    if (!res.ok) throw new Error(`Bling erro ${res.status}: ${await res.text()}`);
+
+    const json = await res.json();
+    const pedidos = json.data || [];
+
+    // Filtra apenas pedidos com vendedor
+    todos.push(...pedidos.filter(p => p.vendedor?.id));
+
+    if (pedidos.length < 100) break;
+    pagina++;
+    await sleep(150);
+  }
+
+  return todos;
+}
+
+// ── Processa um pedido ────────────────────────────────────
+async function processarPedido(pedido, stats) {
+  const vendedorId   = String(pedido.vendedor.id);
+  const nomeVendedor = pedido.vendedor.nome || `Vendedor ${vendedorId}`;
+  const numPedido    = String(pedido.numero || pedido.id);
+  const valor        = Number(pedido.totalVenda || pedido.total || 0);
+  const status       = traduzirStatus(pedido.situacao?.valor ?? pedido.situacao);
+  const data         = (pedido.data || new Date().toISOString()).split('T')[0];
+  const canal        = pedido.loja?.descricao || null;
+  const produtos     = (pedido.itens || []).slice(0, 3).map(i => i.descricao || '?').join(', ') || null;
+
+  // Verifica se afiliado existe
+  const { data: existente } = await sb
+    .from('afiliados')
+    .select('bling_vendedor_id')
+    .eq('bling_vendedor_id', vendedorId)
+    .single();
+
+  if (!existente) {
+    await sb.from('afiliados').insert({
+      bling_vendedor_id: vendedorId,
+      nome_real: nomeVendedor,
+      status_ativacao: 'Pendente de Cadastro',
+      total_vendas_acumulado: 0
+    });
+    stats.novos_afiliados++;
+  }
+
+  // Upsert pedido
+  await sb.from('vendas_consolidadas').upsert({
+    id_pedido_bling:      numPedido,
+    fk_bling_vendedor_id: vendedorId,
+    valor_venda:          valor,
+    status_pedido:        status,
+    data_venda:           data,
+    canal_venda:          canal,
+    produtos_resumo:      produtos,
+    sincronizado_em:      new Date().toISOString()
+  }, { onConflict: 'id_pedido_bling' });
+
+  stats.atualizados++;
+}
+
+// ── Recalcula total acumulado de cada afiliado ────────────
+async function recalcularTotais() {
+  const { data: afiliados } = await sb.from('afiliados').select('bling_vendedor_id');
+  for (const af of afiliados || []) {
+    const { data: vendas } = await sb
+      .from('vendas_consolidadas')
+      .select('valor_venda')
+      .eq('fk_bling_vendedor_id', af.bling_vendedor_id)
+      .not('status_pedido', 'in', '("Cancelado","Devolvido","Cancelado pelo cliente")');
+
+    const total = (vendas || []).reduce((s, v) => s + Number(v.valor_venda || 0), 0);
+    await sb.from('afiliados').update({ total_vendas_acumulado: total }).eq('bling_vendedor_id', af.bling_vendedor_id);
+  }
+}
+
+// ── Helpers ───────────────────────────────────────────────
+function traduzirStatus(s) {
+  const m = { 0:'Em aberto',1:'Em andamento',2:'Atendido',3:'Cancelado',4:'Em digitação',6:'Atendido',10:'Cancelado pelo cliente' };
+  return m[s] || String(s || 'Em aberto');
+}
+function diasAtras(n) {
+  const d = new Date(); d.setDate(d.getDate() - n);
+  return d.toISOString().split('T')[0];
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function resp(statusCode, body) {
+  return { statusCode, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify(body) };
+}
