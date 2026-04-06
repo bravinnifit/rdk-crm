@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { createClient } = require('@supabase/supabase-client');
+const { createClient } = require('@supabase/supabase-js'); // Corrigido aqui
 
 exports.handler = async (event, context) => {
     // Usamos as variáveis do Netlify para segurança total
