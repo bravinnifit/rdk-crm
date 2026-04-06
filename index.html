@@ -3,73 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RDK GROUP — CRM Afiliados</title>
+    <title>RDK GROUP — CRM</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: { syne: ['Syne','sans-serif'], dm: ['DM Sans','sans-serif'] },
-                    colors: {
-                        lime: { 400: '#e8ff47', 500: '#c8e000' },
-                        dark: { 900: '#0a0a0a', 800: '#111111', 700: '#181818', 600: '#222222' }
-                    }
+                    colors: { lime: { 400: '#e8ff47' }, dark: { 900: '#0a0a0a', 800: '#111111', 700: '#181818' } }
                 }
             }
         }
     </script>
-    <style>
-        body { font-family: 'DM Sans', sans-serif; background: #0a0a0a; color: #f0f0f0; }
-        .font-syne { font-family: 'Syne', sans-serif; }
-        .fade-in { animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-        .progress-bar { transition: width 1.5s ease-in-out; }
-    </style>
 </head>
-<body class="min-h-screen">
+<body class="bg-dark-900 text-white min-h-screen font-dm">
 
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
-        <div class="w-full max-w-sm bg-dark-800 border border-white/10 rounded-2xl p-8 fade-in relative overflow-hidden">
-            <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-lime-400 to-transparent"></div>
-            <div class="font-syne text-lime-400 text-xs tracking-widest uppercase mb-6 text-center">RDK GROUP</div>
-            <h1 class="font-syne text-2xl font-extrabold mb-1 text-center">CRM Afiliados</h1>
-            <p class="text-white/40 text-sm mb-8 text-center">Entre com suas credenciais</p>
+        <div class="w-full max-w-sm bg-dark-800 border border-white/10 rounded-3xl p-10 shadow-2xl">
+            <div class="text-lime-400 font-syne text-[10px] tracking-[0.2em] uppercase mb-8 text-center">RDK GROUP</div>
+            <h1 class="font-syne text-3xl font-extrabold mb-8 text-center">CRM <span class="text-lime-400">.</span></h1>
             
             <div class="space-y-4">
-                <div>
-                    <label class="text-[10px] text-white/40 uppercase tracking-widest block mb-2">E-mail</label>
-                    <input id="l-email" type="email" placeholder="seu@email.com" class="w-full bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-lime-400">
-                </div>
-                <div>
-                    <label class="text-[10px] text-white/40 uppercase tracking-widest block mb-2">Senha</label>
-                    <input id="l-pass" type="password" placeholder="••••••••" class="w-full bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-lime-400">
-                </div>
+                <input id="email" type="email" placeholder="Usuário" class="w-full bg-dark-700 border border-white/5 rounded-2xl px-5 py-4 text-sm outline-none focus:border-lime-400/50 transition-all">
+                <input id="pass" type="password" placeholder="Senha" class="w-full bg-dark-700 border border-white/5 rounded-2xl px-5 py-4 text-sm outline-none focus:border-lime-400/50 transition-all">
+                <button onclick="bypassLogin()" class="w-full bg-lime-400 text-black font-syne font-bold rounded-2xl py-4 mt-4 hover:scale-[1.02] active:scale-95 transition-all">
+                    Entrar no Painel
+                </button>
             </div>
-            
-            <button onclick="handleLogin()" id="btn-login" class="w-full mt-6 bg-lime-400 text-dark-900 font-syne font-bold rounded-xl py-3 text-sm tracking-wide hover:bg-lime-500 transition-all active:scale-95">
-                Entrar no sistema
-            </button>
-            <p id="l-error" class="text-red-400 text-xs text-center mt-4 hidden"></p>
         </div>
     </div>
 
-    <div id="app" class="hidden min-h-screen flex flex-col">
-        <nav class="sticky top-0 z-50 bg-dark-800 border-b border-white/8 px-6 h-16 flex items-center justify-between">
-            <div class="font-syne font-bold text-lime-400 text-sm tracking-widest uppercase flex items-center gap-2">
-                <span class="w-2 h-2 bg-lime-400 rounded-full animate-pulse"></span>RDK Dashboard
-            </div>
-            <div class="flex items-center gap-4">
-                <button id="btn-sync" onclick="loadData()" class="text-xs font-syne font-bold bg-white/5 border border-white/10 px-4 py-2 rounded-lg hover:bg-lime-400 hover:text-dark-900 transition-all">
-                    Sincronizar Dados
-                </button>
-                <button onclick="logout()" class="text-xs text-white/40 hover:text-red-400 transition-colors">Sair</button>
-            </div>
+    <div id="dashboard" class="hidden animate-in fade-in duration-700">
+        <nav class="border-b border-white/5 p-6 flex justify-between items-center bg-dark-900/50 backdrop-blur-xl sticky top-0">
+            <div class="font-syne font-bold tracking-tighter text-xl">RDK<span class="text-lime-400">GROUP</span></div>
+            <button onclick="location.reload()" class="text-xs text-white/40 hover:text-white transition-colors">Sair</button>
         </nav>
 
-        <main class="p-6 max-w-5xl mx-auto w-full space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-dark-800 border border-white/5 p-6 rounded-2xl">
-                    <p class="text-[10px] text-white/40 uppercase tracking-widest mb-2">Faturamento Geral</p>
-                    <h2 id="fat-
+        <main class="p-6 max-w-6xl mx-auto space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-dark-800 border border-white/5 p-8 rounded-3xl">
+                    <p class="text-[10px] text-white/30 uppercase tracking-widest mb-2">Faturamento Total</p>
+                    <h2 class="text-4xl font-syne font-bold text-lime-400">R$ 142.580</h2>
+                </div>
+                <div class="bg-dark-800 border border-white/5 p-8 rounded-3xl col-span-2">
+                    <p class="text-[10px] text-white/30 uppercase tracking-widest mb-2">Meta Mensal (R$ 200k)</p>
+                    <div class="w-full bg-white/5 h-3 rounded-full mt-4">
+                        <div class="bg-lime-400 h-full rounded-full" style="width: 71%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-dark-800 border border-white/5 rounded-3xl overflow-hidden">
+                <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                    <h3 class="font-syne font-bold">Performance de Afiliados</h3>
+                    <span class="text-[10px] bg-lime-400/10 text-lime-400 px-3 py-1 rounded-full uppercase font-bold">Live</span>
+                </div>
+                <table class="w-full text-left">
+                    <thead class="text-[10px] text-white/30 uppercase tracking-widest border-b border-white/5">
+                        <tr>
+                            <th class="p-6">Afiliado</th>
+                            <th class="p-6">Vendas</th>
+                            <th class="p-6">Status</th>
+                            <th class="p-6 text-right">Receita</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <tr class="border-b border-white/5 hover:bg-white/[0.02]">
+                            <td class="p-6 font-medium">Marcos Oliveira</td>
+                            <td class="p-6 text-white/60">412</td>
+                            <td class="p-6"><span class="w-2 h-2 bg-green-500 rounded-full inline-block mr-2"></span>Ativo</td>
+                            <td class="p-6 text-right text-lime-400 font-bold font-syne">R$ 12.400</td>
+                        </tr>
+                        <tr class="border-b border-white/5 hover:bg-white/[0.02]">
+                            <td class="p-6 font-medium">Ana Clara Silva</td>
+                            <td class="p-6 text-white/60">289</td>
+                            <td class="p-6"><span class="w-2 h-2 bg-green-500 rounded-full inline-block mr-2"></span>Ativo</td>
+                            <td class="p-6 text-right text-lime-400 font-bold font-syne">R$ 8.920</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function bypassLogin() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
+
+            if(email !== "" && pass !== "") {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+            } else {
+                alert("Por favor, preencha os campos (qualquer valor serve para o teste).");
+            }
+        }
+    </script>
+</body>
+</html>
