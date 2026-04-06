@@ -4,7 +4,7 @@
   "description": "CRM Afiliados TikTok",
   "main": "index.js",
   "dependencies": {
-    "@supabase/supabase-client": "^2.39.0",
+    "@supabase/supabase-js": "^2.39.0",
     "axios": "^1.6.2"
   },
   "author": "",
