@@ -25,29 +25,22 @@
         .font-syne { font-family: 'Syne', sans-serif; }
         .fade-in { animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+        .progress-bar { transition: width 1.2s cubic-bezier(0.4,0,0.2,1); }
     </style>
 </head>
 <body class="min-h-screen">
 
-<div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-sm bg-dark-800 border border-white/10 rounded-2xl p-8 fade-in relative overflow-hidden">
-        <div class="font-syne text-lime-400 text-xs tracking-widest uppercase mb-6">RDK GROUP</div>
-        <h1 class="font-syne text-2xl font-extrabold mb-1">CRM Afiliados</h1>
-        <p class="text-white/40 text-sm mb-8">Acesso restrito à equipe</p>
-        <div class="space-y-4">
-            <input id="l-email" type="email" placeholder="seu@email.com" class="w-full bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-white transition-all">
-            <input id="l-pass" type="password" placeholder="••••••••" class="w-full bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-white transition-all">
-        </div>
-        <button onclick="doLogin()" class="w-full mt-6 bg-lime-400 text-dark-900 font-syne font-bold rounded-xl py-3 text-sm hover:bg-lime-500 transition-all">Entrar no sistema</button>
-        <p id="l-error" class="text-red-400 text-xs text-center mt-4 hidden">Erro ao fazer login.</p>
-    </div>
-</div>
-
-<div id="app" class="hidden">
-    <h1 class="p-8 text-lime-400 font-syne text-2xl">Bem-vindo ao Dashboard RDK!</h1>
-    <button onclick="doLogout()" class="ml-8 text-white/40 hover:text-red-400">Sair</button>
-</div>
-
-<script>
-    // --- COLE SUAS CHAVES AQUI ---
-    const SUPABASE_URL = "
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-sm bg-dark-800 border border-white/10 rounded-2xl p-8 fade-in relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-lime-400 to-transparent"></div>
+            <div class="font-syne text-lime-400 text-xs tracking-widest uppercase mb-6">RDK GROUP</div>
+            <h1 class="font-syne text-2xl font-extrabold mb-1">CRM Afiliados</h1>
+            <p class="text-white/40 text-sm mb-8">Acesso restrito à equipe</p>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs text-white/40 uppercase tracking-wider block mb-2">E-mail</label>
+                    <input id="l-email" type="email" placeholder="seu@email.com" class="w-full bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 transition-all">
+                </div>
+                <div>
+                    <label class="text-xs text-white/40 uppercase tracking-wider block mb-2">Senha</label>
+                    <input id="l-pass" type="password" placeholder="••••••••" class="w-full bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 transition-all
