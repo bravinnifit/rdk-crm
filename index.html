@@ -33,20 +33,24 @@
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
         <div class="w-full max-w-sm bg-dark-800 border border-white/10 rounded-2xl p-8 fade-in relative overflow-hidden">
             <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-lime-400 to-transparent"></div>
-            <div class="font-syne text-lime-400 text-xs tracking-widest uppercase mb-6">RDK GROUP</div>
-            <h1 class="font-syne text-2xl font-extrabold mb-1">CRM Afiliados</h1>
-            <p class="text-white/40 text-sm mb-8">Acesso restrito à equipe</p>
+            <div class="font-syne text-lime-400 text-xs tracking-widest uppercase mb-6 text-center">RDK GROUP</div>
+            <h1 class="font-syne text-2xl font-extrabold mb-1 text-center">CRM Afiliados</h1>
+            <p class="text-white/40 text-sm mb-8 text-center">Entre com suas credenciais</p>
+            
             <div class="space-y-4">
                 <div>
                     <label class="text-[10px] text-white/40 uppercase tracking-widest block mb-2">E-mail</label>
-                    <input id="l-email" type="email" placeholder="seu@email.com" class="w-full bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 outline-none focus:border-lime-400 transition-all">
+                    <input id="l-email" type="email" placeholder="seu@email.com" class="w-full bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-lime-400">
                 </div>
                 <div>
                     <label class="text-[10px] text-white/40 uppercase tracking-widest block mb-2">Senha</label>
-                    <input id="l-pass" type="password" placeholder="••••••••" class="w-full bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 outline-none focus:border-lime-400 transition-all">
+                    <input id="l-pass" type="password" placeholder="••••••••" class="w-full bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-lime-400">
                 </div>
             </div>
-            <button onclick="doLogin()" class="w-full mt-6 bg-lime-400 text-dark-900 font-syne font-bold rounded-xl py-3 text-sm tracking-wide hover:bg-lime-500 transition-all active:scale-95">Entrar no sistema</button>
+            
+            <button onclick="handleLogin()" id="btn-login" class="w-full mt-6 bg-lime-400 text-dark-900 font-syne font-bold rounded-xl py-3 text-sm tracking-wide hover:bg-lime-500 transition-all active:scale-95">
+                Entrar no sistema
+            </button>
             <p id="l-error" class="text-red-400 text-xs text-center mt-4 hidden"></p>
         </div>
     </div>
@@ -57,10 +61,10 @@
                 <span class="w-2 h-2 bg-lime-400 rounded-full animate-pulse"></span>RDK Dashboard
             </div>
             <div class="flex items-center gap-4">
-                <button id="btn-sync" onclick="triggerSync()" class="text-xs font-syne font-bold bg-white/5 border border-white/10 px-4 py-2 rounded-lg hover:bg-lime-400 hover:text-dark-900 transition-all">
-                    Sincronizar Bling
+                <button id="btn-sync" onclick="loadData()" class="text-xs font-syne font-bold bg-white/5 border border-white/10 px-4 py-2 rounded-lg hover:bg-lime-400 hover:text-dark-900 transition-all">
+                    Sincronizar Dados
                 </button>
-                <button onclick="doLogout()" class="text-xs text-white/40 hover:text-red-400 transition-colors">Sair</button>
+                <button onclick="logout()" class="text-xs text-white/40 hover:text-red-400 transition-colors">Sair</button>
             </div>
         </nav>
 
@@ -68,31 +72,4 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="bg-dark-800 border border-white/5 p-6 rounded-2xl">
                     <p class="text-[10px] text-white/40 uppercase tracking-widest mb-2">Faturamento Geral</p>
-                    <h2 id="fat-total" class="text-4xl font-syne font-extrabold text-lime-400">R$ 0,00</h2>
-                </div>
-                <div class="bg-dark-800 border border-white/5 p-6 rounded-2xl">
-                    <p class="text-[10px] text-white/40 uppercase tracking-widest mb-2">Meta R$ 100.000</p>
-                    <div class="w-full bg-white/5 h-4 rounded-full mt-4 overflow-hidden border border-white/5">
-                        <div id="meta-bar" class="bg-lime-400 h-full progress-bar" style="width: 0%"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-dark-800 border border-white/5 rounded-2xl overflow-hidden">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-white/5 text-[10px] uppercase text-white/40 font-bold tracking-widest">
-                        <tr>
-                            <th class="px-6 py-4">Afiliado</th>
-                            <th class="px-6 py-4 text-right">Vendas Totais</th>
-                        </tr>
-                    </thead>
-                    <tbody id="lista-afiliados" class="divide-y divide-white/5">
-                        </tbody>
-                </table>
-            </div>
-        </main>
-    </div>
-
-    <script>
-        const SUPABASE_URL = "https://gxuhlndisvpelnjunhgc.supabase.co";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4dWhsbmRpc3ZwZWxuanVuaGdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MTUyMzgsImV4cCI6MjA5MDk5MTIzOH0.A40-j4y6Z8v6S8p0Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-Gv9-D9u3n9-G
+                    <h2 id="fat-
