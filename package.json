@@ -1,12 +1,9 @@
 {
   "name": "rdk-crm",
-  "version": "1.0.0",
-  "description": "CRM Afiliados TikTok",
-  "main": "index.js",
+  "version": "2.0.0",
+  "private": true,
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
-    "axios": "^1.6.2"
-  },
-  "author": "",
-  "license": "ISC"
+    "node-fetch": "^3.3.2"
+  }
 }

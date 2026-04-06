@@ -4,152 +4,637 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RDK GROUP — CRM Afiliados</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.tailwindcss.com"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { syne: ['Syne','sans-serif'], dm: ['DM Sans','sans-serif'] },
+        colors: {
+          lime: { 400: '#e8ff47', 500: '#c8e000' },
+          dark: { 900: '#0a0a0a', 800: '#111111', 700: '#181818', 600: '#222222' }
+        }
+      }
+    }
+  }
+</script>
 <style>
-:root {
-  --bg:       #0a0a0a;
-  --surface:  #111111;
-  --surface2: #181818;
-  --border:   rgba(255,255,255,0.08);
-  --border2:  rgba(255,255,255,0.14);
-  --text:     #f0f0f0;
-  --muted:    #888;
-  --accent:   #e8ff47;
-  --accent2:  #b8cc00;
-  --radius-lg:16px;
-}
-body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
-.font-syne { font-family: 'Syne', sans-serif; }
-.hidden { display: none !important; }
+  body { font-family: 'DM Sans', sans-serif; background: #0a0a0a; color: #f0f0f0; }
+  .font-syne { font-family: 'Syne', sans-serif; }
+  ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: #111; } ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+  .fade-in { animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  .progress-bar { transition: width 1.2s cubic-bezier(0.4,0,0.2,1); }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #e8ff47 !important; box-shadow: 0 0 0 2px rgba(232,255,71,0.15); }
 </style>
 </head>
-<body class="min-h-screen overflow-x-hidden">
+<body class="min-h-screen">
 
-<div id="login-screen" class="min-h-screen flex items-center justify-center p-4 relative">
-  <div class="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(232,255,71,0.07),transparent)] pointer-events-none"></div>
-  <div class="bg-[#111111] border border-white/10 p-10 rounded-[32px] w-full max-w-sm text-center relative shadow-2xl">
-    <div class="text-[#e8ff47] font-syne text-[10px] tracking-[0.2em] uppercase mb-8">RDK GROUP</div>
-    <h1 class="font-syne text-3xl font-extrabold mb-8">CRM <span class="text-[#e8ff47]">.</span></h1>
-    
+<!-- ══════════════════════════════════════
+     TELA DE LOGIN
+══════════════════════════════════════ -->
+<div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-sm bg-dark-800 border border-white/10 rounded-2xl p-8 fade-in relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-lime-400 to-transparent"></div>
+    <div class="font-syne text-lime-400 text-xs tracking-widest uppercase mb-6">RDK GROUP</div>
+    <h1 class="font-syne text-2xl font-extrabold mb-1">CRM Afiliados</h1>
+    <p class="text-white/40 text-sm mb-8">Acesso restrito à equipe</p>
     <div class="space-y-4">
-        <input id="email" type="email" placeholder="Usuário" class="w-full bg-[#181818] border border-white/5 rounded-2xl px-5 py-4 text-sm outline-none focus:border-[#e8ff47]/50 transition-all">
-        <input id="pass" type="password" placeholder="Senha" class="w-full bg-[#181818] border border-white/5 rounded-2xl px-5 py-4 text-sm outline-none focus:border-[#e8ff47]/50 transition-all">
-        <button onclick="handleLogin()" class="w-full bg-[#e8ff47] text-black font-syne font-bold rounded-2xl py-4 mt-4 hover:scale-[1.02] active:scale-95 transition-all">
-            Entrar no Painel
-        </button>
+      <div>
+        <label class="text-xs text-white/40 uppercase tracking-wider block mb-2">E-mail</label>
+        <input id="l-email" type="email" placeholder="seu@email.com"
+          class="w-full bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 transition-all">
+      </div>
+      <div>
+        <label class="text-xs text-white/40 uppercase tracking-wider block mb-2">Senha</label>
+        <input id="l-pass" type="password" placeholder="••••••••"
+          class="w-full bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 transition-all">
+      </div>
     </div>
-    <p id="login-error" class="text-red-500 text-xs mt-4 hidden">Credenciais inválidas.</p>
+    <button onclick="doLogin()"
+      class="w-full mt-6 bg-lime-400 text-dark-900 font-syne font-bold rounded-xl py-3 text-sm tracking-wide hover:bg-lime-500 transition-all active:scale-95">
+      Entrar no sistema
+    </button>
+    <p id="l-error" class="text-red-400 text-xs text-center mt-4 hidden">E-mail ou senha incorretos.</p>
   </div>
 </div>
 
-<div id="dashboard" class="hidden min-h-screen flex flex-col">
-  <nav class="border-b border-white/5 p-6 flex justify-between items-center bg-[#0a0a0a]/50 backdrop-blur-xl sticky top-0 z-50">
-      <div class="font-syne font-bold tracking-tighter text-xl">RDK<span class="text-[#e8ff47]">GROUP</span></div>
-      <div class="flex items-center gap-4">
-          <span id="user-display" class="text-[10px] text-white/40 uppercase tracking-widest"></span>
-          <button onclick="logout()" class="text-xs text-white/40 hover:text-red-500 transition-colors">Sair</button>
-      </div>
+<!-- ══════════════════════════════════════
+     APP
+══════════════════════════════════════ -->
+<div id="app" class="hidden min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <nav class="sticky top-0 z-50 bg-dark-800 border-b border-white/8 px-6 h-14 flex items-center justify-between">
+    <div class="font-syne font-bold text-lime-400 text-xs tracking-widest uppercase flex items-center gap-2">
+      <span class="w-2 h-2 bg-lime-400 rounded-full"></span>
+      RDK GROUP — Afiliados
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="nav-user" class="text-xs text-white/30 bg-dark-700 border border-white/8 px-3 py-1.5 rounded-full"></span>
+      <button id="btn-sync" onclick="triggerSync()"
+        class="flex items-center gap-2 text-xs font-syne font-semibold border border-white/15 px-4 py-1.5 rounded-xl hover:border-lime-400 hover:text-lime-400 transition-all">
+        <span id="sync-icon">⟳</span> Sincronizar Bling
+      </button>
+      <button onclick="doLogout()" class="text-xs text-white/30 hover:text-red-400 transition-colors px-2 py-1.5">Sair</button>
+    </div>
   </nav>
 
-  <main class="p-6 max-w-7xl mx-auto w-full space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div class="bg-[#111111] border border-white/5 p-6 rounded-3xl">
-              <p class="text-[10px] text-white/40 uppercase tracking-widest mb-2">Vendas/Mês</p>
-              <h2 id="stat-vendas" class="text-2xl font-syne font-bold text-[#e8ff47]">R$ 0,00</h2>
-          </div>
-          <div class="bg-[#111111] border border-white/5 p-6 rounded-3xl">
-              <p class="text-[10px] text-white/40 uppercase tracking-widest mb-2">Afiliados Ativos</p>
-              <h2 id="stat-ativos" class="text-2xl font-syne font-bold">0</h2>
-          </div>
-          <div class="bg-[#111111] border border-white/5 p-6 rounded-3xl col-span-2">
-              <p class="text-[10px] text-white/40 uppercase tracking-widest mb-2">Progresso da Meta</p>
-              <div class="w-full bg-white/5 h-2 rounded-full mt-4">
-                  <div id="meta-bar" class="bg-[#e8ff47] h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
-              </div>
-          </div>
-      </div>
+  <div class="flex-1 p-6 max-w-7xl mx-auto w-full space-y-5">
 
-      <div class="bg-[#111111] border border-white/5 rounded-3xl overflow-hidden">
-          <div class="p-6 border-b border-white/5 flex justify-between items-center">
-              <h3 class="font-syne font-bold uppercase text-xs tracking-widest">Performance de Afiliados</h3>
-              <button class="text-[10px] bg-[#e8ff47]/10 text-[#e8ff47] px-3 py-1 rounded-full uppercase font-bold">Atualizado</button>
-          </div>
-          <div class="overflow-x-auto">
-              <table class="w-full text-left">
-                  <thead class="text-[10px] text-white/30 uppercase tracking-widest border-b border-white/5">
-                      <tr>
-                          <th class="p-6">@TikTok</th>
-                          <th class="p-6">Nome</th>
-                          <th class="p-6">Status</th>
-                          <th class="p-6 text-right">Vendas</th>
-                      </tr>
-                  </thead>
-                  <tbody id="lista-afiliados" class="text-sm text-white/70">
-                      </tbody>
-              </table>
-          </div>
+    <!-- Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 fade-in">
+      <div class="bg-dark-800 border border-lime-400/20 rounded-2xl p-5">
+        <p class="text-xs text-white/40 uppercase tracking-wider mb-2">Vendas no mês</p>
+        <p id="s-mes" class="font-syne text-2xl font-extrabold text-lime-400">—</p>
+        <p id="s-pedidos" class="text-xs text-white/30 mt-1">— pedidos</p>
       </div>
-  </main>
+      <div class="bg-dark-800 border border-white/8 rounded-2xl p-5">
+        <p class="text-xs text-white/40 uppercase tracking-wider mb-2">Total acumulado</p>
+        <p id="s-total" class="font-syne text-2xl font-extrabold">—</p>
+        <p class="text-xs text-white/30 mt-1">todos os tempos</p>
+      </div>
+      <div class="bg-dark-800 border border-white/8 rounded-2xl p-5">
+        <p class="text-xs text-white/40 uppercase tracking-wider mb-2">Afiliados ativos</p>
+        <p id="s-ativos" class="font-syne text-2xl font-extrabold">—</p>
+        <p id="s-pendentes" class="text-xs text-white/30 mt-1">— pendentes</p>
+      </div>
+      <div class="bg-dark-800 border border-white/8 rounded-2xl p-5">
+        <p class="text-xs text-white/40 uppercase tracking-wider mb-2">Amostras enviadas</p>
+        <p id="s-amostras" class="font-syne text-2xl font-extrabold">—</p>
+        <p id="s-apostar" class="text-xs text-white/30 mt-1">— a postar</p>
+      </div>
+    </div>
+
+    <!-- Meta bar -->
+    <div class="bg-dark-800 border border-white/8 rounded-2xl p-5 flex flex-col md:flex-row md:items-center gap-4 fade-in">
+      <div class="flex-shrink-0">
+        <p class="text-xs text-white/40 uppercase tracking-wider mb-1">Meta do mês</p>
+        <div class="flex items-baseline gap-2">
+          <span id="meta-current" class="font-syne text-xl font-extrabold text-lime-400">R$ 0</span>
+          <span class="text-white/30">/</span>
+          <span id="meta-goal" class="font-syne text-base font-bold text-white/40">R$ 100.000</span>
+        </div>
+      </div>
+      <div class="flex-1 h-2.5 bg-dark-700 rounded-full overflow-hidden">
+        <div id="meta-bar" class="progress-bar h-full rounded-full bg-gradient-to-r from-lime-500 to-lime-400" style="width:0%"></div>
+      </div>
+      <div class="font-syne font-bold text-base" id="meta-pct">0%</div>
+      <button onclick="openMetaModal()"
+        class="text-xs border border-white/15 px-4 py-2 rounded-xl hover:border-lime-400 hover:text-lime-400 transition-all flex-shrink-0">
+        Editar meta
+      </button>
+    </div>
+
+    <!-- Tabela -->
+    <div class="fade-in">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-syne font-bold text-xs uppercase tracking-widest text-white/60">Lista de Afiliados</h2>
+        <div class="flex gap-2">
+          <input id="f-search" oninput="filterTable()" placeholder="Buscar @usuario..."
+            class="bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 w-48 transition-all">
+          <select id="f-status" onchange="filterTable()"
+            class="bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-xs text-white transition-all">
+            <option value="">Todos</option>
+            <option value="Ativo">Ativo</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Pendente de Cadastro">Pendente de Cadastro</option>
+            <option value="Inativo">Inativo</option>
+          </select>
+        </div>
+      </div>
+      <div class="bg-dark-800 border border-white/8 rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-dark-700 border-b border-white/8">
+                <th class="text-left px-5 py-3 text-xs font-semibold text-white/40 uppercase tracking-wider">@TikTok</th>
+                <th class="text-left px-5 py-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Nome / ID</th>
+                <th class="text-left px-5 py-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Status</th>
+                <th class="text-left px-5 py-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Vendas mês</th>
+                <th class="text-left px-5 py-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Total</th>
+                <th class="text-left px-5 py-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Amostras</th>
+                <th class="px-5 py-3"></th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              <tr><td colspan="7" class="text-center py-12 text-white/30 text-sm">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
+<!-- ══════════════════════════════════════
+     MODAL CRM
+══════════════════════════════════════ -->
+<div id="modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm overflow-y-auto p-4 flex items-start justify-center">
+  <div class="bg-dark-800 border border-white/15 rounded-2xl w-full max-w-2xl my-auto relative overflow-hidden">
+    <div class="h-px bg-gradient-to-r from-transparent via-lime-400 to-transparent"></div>
+    <div class="flex items-start justify-between p-6 border-b border-white/8">
+      <div>
+        <h2 id="m-name" class="font-syne text-xl font-extrabold"></h2>
+        <p id="m-sub" class="text-sm text-white/40 mt-1"></p>
+      </div>
+      <button onclick="closeModal()" class="text-white/30 hover:text-red-400 border border-white/10 rounded-xl w-8 h-8 flex items-center justify-center transition-colors">✕</button>
+    </div>
+    <!-- Tabs -->
+    <div class="flex border-b border-white/8 px-6">
+      <button class="modal-tab active-tab py-3 px-0 mr-6 text-xs font-syne font-bold uppercase tracking-wider border-b-2 border-lime-400 text-lime-400" onclick="switchTab('perfil',this)">Perfil</button>
+      <button class="modal-tab py-3 px-0 mr-6 text-xs font-syne font-bold uppercase tracking-wider border-b-2 border-transparent text-white/40 hover:text-white transition-colors" onclick="switchTab('historico',this)">Histórico</button>
+      <button class="modal-tab py-3 px-0 mr-6 text-xs font-syne font-bold uppercase tracking-wider border-b-2 border-transparent text-white/40 hover:text-white transition-colors" onclick="switchTab('amostras',this)">Amostras</button>
+      <button class="modal-tab py-3 px-0 text-xs font-syne font-bold uppercase tracking-wider border-b-2 border-transparent text-white/40 hover:text-white transition-colors" onclick="switchTab('vendas',this)">Vendas</button>
+    </div>
+    <div class="p-6">
+
+      <!-- PERFIL -->
+      <div id="tab-perfil" class="space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="label">@TikTok</label><input id="f-tiktok" class="inp" placeholder="@usuario"></div>
+          <div><label class="label">Nome real</label><input id="f-nome" class="inp"></div>
+          <div><label class="label">CPF / CNPJ</label><input id="f-cpf" class="inp"></div>
+          <div><label class="label">E-mail</label><input id="f-email" class="inp" type="email"></div>
+          <div><label class="label">WhatsApp</label><input id="f-tel" class="inp"></div>
+          <div><label class="label">Status</label>
+            <select id="f-status2" class="inp">
+              <option>Ativo</option><option>Pendente</option><option>Inativo</option>
+            </select>
+          </div>
+          <div><label class="label">Tamanho roupa</label><input id="f-tam" class="inp" placeholder="P, M, G, GG..."></div>
+          <div><label class="label">Tamanho calçado</label><input id="f-calc" class="inp" placeholder="38, 39..."></div>
+          <div><label class="label">Estilo</label><input id="f-estilo" class="inp" placeholder="Streetwear, casual..."></div>
+          <div><label class="label">CEP</label><input id="f-cep" class="inp" placeholder="00000-000" onblur="buscaCep()"></div>
+          <div><label class="label">Rua</label><input id="f-rua" class="inp"></div>
+          <div><label class="label">Número</label><input id="f-num" class="inp"></div>
+          <div><label class="label">Bairro</label><input id="f-bairro" class="inp"></div>
+          <div><label class="label">Cidade</label><input id="f-cidade" class="inp"></div>
+          <div class="col-span-2"><label class="label">Observações</label><textarea id="f-obs" class="inp" rows="3" placeholder="Anotações internas..."></textarea></div>
+        </div>
+        <button onclick="saveAfiliado()" class="bg-lime-400 text-dark-900 font-syne font-bold px-6 py-2.5 rounded-xl text-sm hover:bg-lime-500 transition-all active:scale-95">Salvar perfil</button>
+      </div>
+
+      <!-- HISTÓRICO -->
+      <div id="tab-historico" class="hidden space-y-4">
+        <div id="timeline" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+        <div class="bg-dark-700 rounded-xl p-4">
+          <p class="text-xs text-white/40 uppercase tracking-wider mb-3">Nova anotação</p>
+          <div class="flex gap-2">
+            <select id="n-tipo" class="inp flex-shrink-0 w-36">
+              <option>Conversa</option><option>Problema</option><option>Sugestão</option><option>Negociação</option><option>Outro</option>
+            </select>
+            <input id="n-desc" class="inp flex-1" placeholder="Descreva a interação...">
+            <button onclick="addNote()" class="bg-lime-400 text-dark-900 font-bold px-4 rounded-xl text-xs hover:bg-lime-500 transition-all flex-shrink-0">+ Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- AMOSTRAS -->
+      <div id="tab-amostras" class="hidden space-y-3">
+        <div id="amostras-list" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+        <div class="bg-dark-700 rounded-xl p-4">
+          <p class="text-xs text-white/40 uppercase tracking-wider mb-3">Registrar envio</p>
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <input id="a-prod" class="inp" placeholder="Produto">
+            <input id="a-sku" class="inp" placeholder="SKU">
+            <input id="a-rastreio" class="inp" placeholder="Código rastreio">
+            <input id="a-transp" class="inp" placeholder="Transportadora">
+            <input id="a-data" class="inp" type="date">
+            <select id="a-status" class="inp">
+              <option>Aguardando envio</option><option>Postado</option><option>Em trânsito</option><option>Entregue</option>
+            </select>
+          </div>
+          <input id="a-video" class="inp w-full mb-2" placeholder="Link do vídeo TikTok (opcional)">
+          <button onclick="addAmostra()" class="bg-lime-400 text-dark-900 font-bold px-4 py-2 rounded-xl text-xs hover:bg-lime-500 transition-all">+ Registrar amostra</button>
+        </div>
+      </div>
+
+      <!-- VENDAS -->
+      <div id="tab-vendas" class="hidden">
+        <div id="vendas-list" class="space-y-2 max-h-96 overflow-y-auto pr-1"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL META -->
+<div id="meta-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-dark-800 border border-white/15 rounded-2xl p-6 w-80">
+    <h3 class="font-syne font-bold text-base mb-4">Editar meta do mês</h3>
+    <label class="label">Valor (R$)</label>
+    <input id="meta-inp" type="number" class="inp w-full mb-4" placeholder="100000">
+    <div class="flex gap-2">
+      <button onclick="saveMeta()" class="flex-1 bg-lime-400 text-dark-900 font-syne font-bold py-2.5 rounded-xl text-sm hover:bg-lime-500 transition-all">Salvar</button>
+      <button onclick="closeMetaModal()" class="px-4 border border-white/15 rounded-xl text-sm hover:border-white/30 transition-all">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div id="toasts" class="fixed bottom-5 right-5 z-[999] space-y-2"></div>
+
+<style>
+.label { display:block; font-size:11px; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px; }
+.inp { width:100%; background:#181818; border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:9px 14px; font-size:13px; color:#f0f0f0; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+.active-tab { color:#e8ff47; border-bottom-color:#e8ff47; }
+</style>
+
 <script>
-// Configurações do Supabase (Substitua se necessário)
-const SUPABASE_URL = 'https://gxuhlndisvpelnjunhgc.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4dWhsbmRpc3ZwZWxuanVuaGdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MTUyMzgsImV4cCI6MjA5MDk5MTIzOH0.x6swLKQNRAWupZ14c0TSqjpO1N0oQ-EfSgd3sgINIIY';
+// ══════════════════════════════════════
+// CONFIG — suas credenciais Supabase
+// ══════════════════════════════════════
+const SUPABASE_URL     = 'https://gxuhlndisvpelnjunhgc.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4dWhsbmRpc3ZwZWxuanVuaGdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MTUyMzgsImV4cCI6MjA5MDk5MTIzOH0.x6swLKQNRAWupZ14c0TSqjpO1N0oQ-EfSgd3sgINIIY';
 
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-async function handleLogin() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('pass').value;
+let currentId = null;
+let allAfiliados = [];
 
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+// ══ AUTH ══════════════════════════════
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  session ? showApp(session.user) : showLogin();
+  sb.auth.onAuthStateChange((_, s) => s ? showApp(s.user) : showLogin());
+}
+function showLogin() {
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('app').classList.add('hidden');
+}
+async function showApp(user) {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('nav-user').textContent = user.email;
+  await loadDashboard();
+}
+async function doLogin() {
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  document.getElementById('l-error').classList.toggle('hidden', !error);
+}
+async function doLogout() { await sb.auth.signOut(); }
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('l-pass').addEventListener('keydown', e => e.key === 'Enter' && doLogin());
+});
 
-    if (error) {
-        document.getElementById('login-error').classList.remove('hidden');
-    } else {
-        showDashboard(data.user);
+// ══ DASHBOARD ═════════════════════════
+async function loadDashboard() {
+  await Promise.all([loadStats(), loadAfiliados(), loadMeta()]);
+}
+
+async function loadStats() {
+  const inicio = new Date(); inicio.setDate(1);
+  const mesInicio = inicio.toISOString().split('T')[0];
+
+  const [{ data: afs }, { data: vMes }, { data: ams }] = await Promise.all([
+    sb.from('afiliados').select('status_ativacao, total_vendas_acumulado'),
+    sb.from('vendas_consolidadas').select('valor_venda, id_pedido_bling').gte('data_venda', mesInicio),
+    sb.from('controle_amostras').select('status_postagem_video')
+  ]);
+
+  const ativos    = (afs||[]).filter(a => a.status_ativacao === 'Ativo').length;
+  const pendentes = (afs||[]).filter(a => a.status_ativacao.includes('Pendente')).length;
+  const totalAcum = (afs||[]).reduce((s,a) => s + +a.total_vendas_acumulado, 0);
+  const totalMes  = (vMes||[]).reduce((s,v) => s + +v.valor_venda, 0);
+  const amostras  = (ams||[]).length;
+  const aPostar   = (ams||[]).filter(a => a.status_postagem_video === 'Pendente').length;
+
+  set('s-mes',      brl(totalMes));
+  set('s-pedidos',  `${(vMes||[]).length} pedidos`);
+  set('s-total',    brl(totalAcum));
+  set('s-ativos',   ativos);
+  set('s-pendentes',`${pendentes} pendentes`);
+  set('s-amostras', amostras);
+  set('s-apostar',  `${aPostar} a postar`);
+  set('meta-current', brl(totalMes));
+  updateBar(totalMes);
+}
+
+async function loadMeta() {
+  const now = new Date();
+  const { data } = await sb.from('metas_mensais').select('valor_meta')
+    .eq('ano', now.getFullYear()).eq('mes', now.getMonth()+1).single();
+  if (data) {
+    set('meta-goal', brl(data.valor_meta));
+    document.getElementById('meta-inp').value = data.valor_meta;
+    const cur = +(document.getElementById('meta-current').textContent.replace(/[^\d]/g,''));
+    updateBar(cur, data.valor_meta);
+  }
+}
+
+function updateBar(cur, goal) {
+  if (!goal) goal = +(document.getElementById('meta-goal').textContent.replace(/[^\d]/g,'')) || 100000;
+  const pct = Math.min(100, Math.round(cur / goal * 100));
+  document.getElementById('meta-bar').style.width = pct + '%';
+  set('meta-pct', pct + '%');
+}
+
+async function loadAfiliados() {
+  const { data } = await sb.from('vw_afiliados_resumo').select('*').order('total_vendas_acumulado', { ascending: false });
+  allAfiliados = data || [];
+  renderTable(allAfiliados);
+}
+
+function renderTable(list) {
+  const tbody = document.getElementById('tbody');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-12 text-white/30 text-sm">Nenhum afiliado encontrado</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(a => `
+    <tr class="border-b border-white/5 hover:bg-white/3 cursor-pointer transition-colors" onclick="openCRM('${a.bling_vendedor_id}')">
+      <td class="px-5 py-3.5 text-sky-400 font-medium text-sm">${a.username_tiktok ? '@'+a.username_tiktok : '—'}</td>
+      <td class="px-5 py-3.5">
+        <div class="text-sm font-medium">${a.nome_real}</div>
+        <div class="text-xs text-white/30">#${a.bling_vendedor_id}</div>
+      </td>
+      <td class="px-5 py-3.5">${badge(a.status_ativacao)}</td>
+      <td class="px-5 py-3.5 font-syne font-bold text-sm">${brl(a.vendas_mes_atual||0)}</td>
+      <td class="px-5 py-3.5 font-syne font-bold text-sm">${brl(a.total_vendas_acumulado||0)}</td>
+      <td class="px-5 py-3.5 text-xs text-white/40">${a.amostras_enviadas||0}</td>
+      <td class="px-5 py-3.5">
+        <button class="text-xs font-syne font-bold border border-white/15 px-3 py-1.5 rounded-lg hover:border-lime-400 hover:text-lime-400 transition-all"
+          onclick="event.stopPropagation();openCRM('${a.bling_vendedor_id}')">CRM →</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterTable() {
+  const q = document.getElementById('f-search').value.toLowerCase();
+  const s = document.getElementById('f-status').value;
+  renderTable(allAfiliados.filter(a =>
+    (!q || (a.username_tiktok||'').toLowerCase().includes(q) || (a.nome_real||'').toLowerCase().includes(q)) &&
+    (!s || a.status_ativacao === s)
+  ));
+}
+
+// ══ MODAL CRM ═════════════════════════
+async function openCRM(id) {
+  currentId = id;
+  document.getElementById('modal').classList.remove('hidden');
+  switchTab('perfil', document.querySelector('.modal-tab'));
+
+  const { data: a } = await sb.from('afiliados').select('*').eq('bling_vendedor_id', id).single();
+  if (!a) return;
+
+  set('m-name', a.nome_real);
+  set('m-sub', `#${a.bling_vendedor_id}${a.username_tiktok ? ' · @'+a.username_tiktok : ''}`);
+
+  const map = { 'f-tiktok': a.username_tiktok, 'f-nome': a.nome_real, 'f-cpf': a.cpf_cnpj,
+    'f-email': a.email, 'f-tel': a.telefone, 'f-status2': a.status_ativacao,
+    'f-tam': a.tamanho_vestuario, 'f-calc': a.tamanho_calcado, 'f-estilo': a.estilo_preferido,
+    'f-obs': a.observacoes_crm, 'f-cep': a.endereco_cep, 'f-rua': a.endereco_rua,
+    'f-num': a.endereco_numero, 'f-bairro': a.endereco_bairro, 'f-cidade': a.endereco_cidade };
+  for (const [k, v] of Object.entries(map)) {
+    const el = document.getElementById(k);
+    if (el) el.value = v || '';
+  }
+  loadHistorico(); loadAmostras(); loadVendas();
+}
+
+function closeModal() { document.getElementById('modal').classList.add('hidden'); currentId = null; }
+
+function switchTab(name, el) {
+  ['perfil','historico','amostras','vendas'].forEach(t => {
+    document.getElementById('tab-'+t).classList.add('hidden');
+  });
+  document.querySelectorAll('.modal-tab').forEach(t => {
+    t.classList.remove('active-tab','text-lime-400','border-lime-400');
+    t.classList.add('text-white/40','border-transparent');
+  });
+  document.getElementById('tab-'+name).classList.remove('hidden');
+  if (el) { el.classList.add('active-tab','text-lime-400','border-lime-400'); el.classList.remove('text-white/40','border-transparent'); }
+}
+
+async function saveAfiliado() {
+  const payload = {
+    username_tiktok: val('f-tiktok').replace('@',''), nome_real: val('f-nome'),
+    cpf_cnpj: val('f-cpf'), email: val('f-email'), telefone: val('f-tel'),
+    status_ativacao: val('f-status2'), tamanho_vestuario: val('f-tam'),
+    tamanho_calcado: val('f-calc'), estilo_preferido: val('f-estilo'),
+    observacoes_crm: val('f-obs'), endereco_cep: val('f-cep'),
+    endereco_rua: val('f-rua'), endereco_numero: val('f-num'),
+    endereco_bairro: val('f-bairro'), endereco_cidade: val('f-cidade'),
+  };
+  const { error } = await sb.from('afiliados').update(payload).eq('bling_vendedor_id', currentId);
+  error ? toast('Erro ao salvar', 'error') : toast('Perfil salvo!', 'ok');
+  if (!error) loadAfiliados();
+}
+
+// ══ HISTÓRICO ═════════════════════════
+async function loadHistorico() {
+  const { data } = await sb.from('crm_historico').select('*')
+    .eq('fk_bling_vendedor_id', currentId).order('created_at', { ascending: false });
+  const el = document.getElementById('timeline');
+  if (!data?.length) { el.innerHTML = `<p class="text-white/30 text-sm text-center py-6">Nenhuma anotação</p>`; return; }
+  const cores = { Conversa:'text-sky-400', Problema:'text-red-400', Sugestão:'text-emerald-400', Negociação:'text-amber-400', Outro:'text-white/40' };
+  el.innerHTML = data.map(h => `
+    <div class="bg-dark-700 rounded-xl p-3.5">
+      <div class="flex justify-between items-center mb-1.5">
+        <span class="text-xs font-bold ${cores[h.tipo]||'text-white/40'}">${h.tipo}</span>
+        <span class="text-xs text-white/30">${fmtDate(h.created_at)}</span>
+      </div>
+      <p class="text-sm text-white/80 leading-relaxed">${h.descricao}</p>
+    </div>
+  `).join('');
+}
+
+async function addNote() {
+  const desc = val('n-desc').trim();
+  if (!desc) return toast('Digite uma descrição', 'info');
+  const { data: { user } } = await sb.auth.getUser();
+  const { error } = await sb.from('crm_historico').insert({
+    fk_bling_vendedor_id: currentId, tipo: val('n-tipo'), descricao: desc, autor: user?.email||'usuário'
+  });
+  error ? toast('Erro ao salvar', 'error') : (document.getElementById('n-desc').value='', toast('Anotação salva!','ok'), loadHistorico());
+}
+
+// ══ AMOSTRAS ══════════════════════════
+async function loadAmostras() {
+  const { data } = await sb.from('controle_amostras').select('*')
+    .eq('fk_bling_vendedor_id', currentId).order('created_at', { ascending: false });
+  const el = document.getElementById('amostras-list');
+  if (!data?.length) { el.innerHTML = `<p class="text-white/30 text-sm text-center py-4">Nenhuma amostra registrada</p>`; return; }
+  el.innerHTML = data.map(a => `
+    <div class="bg-dark-700 rounded-xl p-3.5">
+      <div class="flex justify-between items-center mb-2">
+        <span class="font-medium text-sm">${a.produto_enviado}</span>
+        ${badgeEntrega(a.status_entrega)}
+      </div>
+      <div class="grid grid-cols-2 gap-1 text-xs text-white/40">
+        <span>Rastreio: <span class="text-white/70">${a.rastreio||'—'}</span></span>
+        <span>Envio: <span class="text-white/70">${a.data_envio||'—'}</span></span>
+        <span class="col-span-2">Vídeo: <span class="text-white/70">${a.status_postagem_video==='Pendente'?'⏳ Pendente':'<a href="'+a.status_postagem_video+'" target="_blank" class="text-lime-400">Ver ↗</a>'}</span></span>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function addAmostra() {
+  const prod = val('a-prod').trim();
+  if (!prod) return toast('Informe o produto', 'info');
+  const video = val('a-video').trim();
+  const { error } = await sb.from('controle_amostras').insert({
+    fk_bling_vendedor_id: currentId, produto_enviado: prod, sku: val('a-sku'),
+    rastreio: val('a-rastreio'), transportadora: val('a-transp'),
+    data_envio: val('a-data')||null, status_entrega: val('a-status'),
+    status_postagem_video: video||'Pendente'
+  });
+  error ? toast('Erro ao registrar', 'error') : (toast('Amostra registrada!','ok'), loadAmostras(), loadStats());
+}
+
+// ══ VENDAS ════════════════════════════
+async function loadVendas() {
+  const { data } = await sb.from('vendas_consolidadas').select('*')
+    .eq('fk_bling_vendedor_id', currentId).order('data_venda', { ascending: false }).limit(50);
+  const el = document.getElementById('vendas-list');
+  if (!data?.length) { el.innerHTML = `<p class="text-white/30 text-sm text-center py-6">Nenhuma venda registrada</p>`; return; }
+  el.innerHTML = data.map(v => `
+    <div class="bg-dark-700 rounded-xl p-3.5 flex items-center justify-between">
+      <div>
+        <p class="font-medium text-sm"># ${v.id_pedido_bling}</p>
+        <p class="text-xs text-white/30 mt-0.5">${v.data_venda||'—'} ${v.canal_venda?'· '+v.canal_venda:''}</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="font-syne font-bold text-lime-400">${brl(v.valor_venda)}</span>
+        ${badge(v.status_pedido)}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ══ META ══════════════════════════════
+function openMetaModal() { document.getElementById('meta-modal').classList.remove('hidden'); }
+function closeMetaModal() { document.getElementById('meta-modal').classList.add('hidden'); }
+async function saveMeta() {
+  const v = parseFloat(document.getElementById('meta-inp').value);
+  if (!v || v <= 0) return toast('Valor inválido', 'info');
+  const now = new Date();
+  const { error } = await sb.from('metas_mensais').upsert(
+    { ano: now.getFullYear(), mes: now.getMonth()+1, valor_meta: v }, { onConflict: 'ano,mes' }
+  );
+  error ? toast('Erro ao salvar', 'error') : (closeMetaModal(), toast('Meta atualizada!','ok'), loadMeta());
+}
+
+// ══ SYNC ══════════════════════════════
+async function triggerSync() {
+  const btn = document.getElementById('btn-sync');
+  const icon = document.getElementById('sync-icon');
+  btn.classList.add('border-lime-400','text-lime-400');
+  icon.style.animation = 'spin 1s linear infinite';
+  icon.style.display = 'inline-block';
+  toast('Sincronizando com o Bling...', 'info');
+
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    const res = await fetch('/.netlify/functions/sync', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + session.access_token }
+    });
+    const r = await res.json();
+    res.ok
+      ? toast(`✓ ${r.pedidos||0} pedidos, ${r.novos_afiliados||0} novos afiliados`, 'ok')
+      : toast('Erro: ' + (r.error||'desconhecido'), 'error');
+    if (res.ok) loadDashboard();
+  } catch(e) {
+    toast('Erro de conexão', 'error');
+  } finally {
+    btn.classList.remove('border-lime-400','text-lime-400');
+    icon.style.animation = '';
+  }
+}
+
+// ══ CEP ═══════════════════════════════
+async function buscaCep() {
+  const cep = val('f-cep').replace(/\D/g,'');
+  if (cep.length !== 8) return;
+  try {
+    const d = await (await fetch(`https://viacep.com.br/ws/${cep}/json/`)).json();
+    if (!d.erro) {
+      document.getElementById('f-rua').value = d.logradouro||'';
+      document.getElementById('f-bairro').value = d.bairro||'';
+      document.getElementById('f-cidade').value = d.localidade||'';
+      toast('Endereço preenchido!', 'ok');
     }
+  } catch(e) {}
 }
 
-function showDashboard(user) {
-    document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('dashboard').classList.remove('hidden');
-    document.getElementById('user-display').textContent = user.email;
-    loadData();
+// ══ HELPERS ═══════════════════════════
+const brl = v => Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const val = id => document.getElementById(id)?.value || '';
+const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+const fmtDate = iso => new Date(iso).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+
+function badge(s) {
+  const m = { 'Ativo':'bg-emerald-400/10 text-emerald-400 border-emerald-400/20', 'Pendente':'bg-amber-400/10 text-amber-400 border-amber-400/20', 'Inativo':'bg-white/5 text-white/30 border-white/10', 'Pendente de Cadastro':'bg-sky-400/10 text-sky-400 border-sky-400/20' };
+  return `<span class="text-xs px-2.5 py-1 rounded-full border ${m[s]||m['Inativo']}">${s||'—'}</span>`;
+}
+function badgeEntrega(s) {
+  const m = { 'Entregue':'bg-emerald-400/10 text-emerald-400 border-emerald-400/20', 'Em trânsito':'bg-sky-400/10 text-sky-400 border-sky-400/20', 'Postado':'bg-amber-400/10 text-amber-400 border-amber-400/20', 'Aguardando envio':'bg-white/5 text-white/30 border-white/10' };
+  return `<span class="text-xs px-2.5 py-1 rounded-full border ${m[s]||m['Aguardando envio']}">${s}</span>`;
 }
 
-async function loadData() {
-    // Exemplo de busca de dados reais
-    const { data: afiliados } = await supabaseClient.from('afiliados').select('*').limit(10);
-    
-    const tbody = document.getElementById('lista-afiliados');
-    if (afiliados) {
-        tbody.innerHTML = afiliados.map(af => `
-            <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                <td class="p-6 text-[#e8ff47] font-medium">@${af.username_tiktok || 'sem_user'}</td>
-                <td class="p-6">${af.nome_real || 'N/A'}</td>
-                <td class="p-6"><span class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>${af.status_ativacao}</span></td>
-                <td class="p-6 text-right font-syne font-bold text-white">R$ ${af.total_vendas_acumulado || '0,00'}</td>
-            </tr>
-        `).join('');
-    }
+function toast(msg, type='info') {
+  const c = document.getElementById('toasts');
+  const t = document.createElement('div');
+  const colors = { ok:'border-emerald-400/30 text-emerald-400', error:'border-red-400/30 text-red-400', info:'border-sky-400/30 text-sky-400' };
+  t.className = `bg-dark-800 border ${colors[type]||colors.info} rounded-xl px-4 py-3 text-xs font-medium shadow-lg fade-in max-w-xs`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
 }
 
-function logout() {
-    supabaseClient.auth.signOut();
-    location.reload();
-}
+document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+document.getElementById('meta-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeMetaModal(); });
 
-// Verifica sessão ao carregar
-window.onload = async () => {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (session) showDashboard(session.user);
-};
+init();
 </script>
 </body>
 </html>
