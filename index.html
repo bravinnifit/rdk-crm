@@ -1,44 +1,155 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RDK GROUP - CRM</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap');
-        body { background-color: #0a0a0a; color: white; overflow-x: hidden; }
-        .font-syne { font-family: 'Syne', sans-serif; }
-        .hidden { display: none !important; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RDK GROUP — CRM Afiliados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+:root {
+  --bg:       #0a0a0a;
+  --surface:  #111111;
+  --surface2: #181818;
+  --border:   rgba(255,255,255,0.08);
+  --border2:  rgba(255,255,255,0.14);
+  --text:     #f0f0f0;
+  --muted:    #888;
+  --accent:   #e8ff47;
+  --accent2:  #b8cc00;
+  --radius-lg:16px;
+}
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
+.font-syne { font-family: 'Syne', sans-serif; }
+.hidden { display: none !important; }
+</style>
 </head>
-<body>
+<body class="min-h-screen overflow-x-hidden">
 
-    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
-        <div class="bg-zinc-900 p-10 rounded-3xl border border-white/10 w-full max-w-sm text-center shadow-2xl">
-            <h1 class="font-syne text-3xl mb-8">RDK<span class="text-lime-400">.</span></h1>
-            
-            <div class="space-y-4">
-                <input id="user" type="text" placeholder="Usuário" class="w-full bg-zinc-800 border border-white/5 p-4 rounded-xl outline-none focus:border-lime-400 text-white">
-                <input id="pass" type="password" placeholder="Senha" class="w-full bg-zinc-800 border border-white/5 p-4 rounded-xl outline-none focus:border-lime-400 text-white">
-                
-                <button onclick="tentarLogar()" class="w-full bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-500 transition-all active:scale-95">
-                    ENTRAR NO SISTEMA
-                </button>
-            </div>
-            <p id="msg" class="text-red-500 text-xs mt-4 hidden">Preencha usuário e senha!</p>
-        </div>
+<div id="login-screen" class="min-h-screen flex items-center justify-center p-4 relative">
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(232,255,71,0.07),transparent)] pointer-events-none"></div>
+  <div class="bg-[#111111] border border-white/10 p-10 rounded-[32px] w-full max-w-sm text-center relative shadow-2xl">
+    <div class="text-[#e8ff47] font-syne text-[10px] tracking-[0.2em] uppercase mb-8">RDK GROUP</div>
+    <h1 class="font-syne text-3xl font-extrabold mb-8">CRM <span class="text-[#e8ff47]">.</span></h1>
+    
+    <div class="space-y-4">
+        <input id="email" type="email" placeholder="Usuário" class="w-full bg-[#181818] border border-white/5 rounded-2xl px-5 py-4 text-sm outline-none focus:border-[#e8ff47]/50 transition-all">
+        <input id="pass" type="password" placeholder="Senha" class="w-full bg-[#181818] border border-white/5 rounded-2xl px-5 py-4 text-sm outline-none focus:border-[#e8ff47]/50 transition-all">
+        <button onclick="handleLogin()" class="w-full bg-[#e8ff47] text-black font-syne font-bold rounded-2xl py-4 mt-4 hover:scale-[1.02] active:scale-95 transition-all">
+            Entrar no Painel
+        </button>
     </div>
+    <p id="login-error" class="text-red-500 text-xs mt-4 hidden">Credenciais inválidas.</p>
+  </div>
+</div>
 
-    <div id="dashboard" class="hidden min-h-screen p-6 md:p-10">
-        <nav class="flex justify-between items-center mb-10 border-b border-white/10 pb-6">
-            <h2 class="font-syne text-xl tracking-tighter">RDK <span class="text-lime-400">DASHBOARD</span></h2>
-            <button onclick="sair()" class="bg-white/5 px-4 py-2 rounded-lg text-xs hover:bg-red-500/20 hover:text-red-500 transition-all">
-                Sair do Sistema
-            </button>
-        </nav>
+<div id="dashboard" class="hidden min-h-screen flex flex-col">
+  <nav class="border-b border-white/5 p-6 flex justify-between items-center bg-[#0a0a0a]/50 backdrop-blur-xl sticky top-0 z-50">
+      <div class="font-syne font-bold tracking-tighter text-xl">RDK<span class="text-[#e8ff47]">GROUP</span></div>
+      <div class="flex items-center gap-4">
+          <span id="user-display" class="text-[10px] text-white/40 uppercase tracking-widest"></span>
+          <button onclick="logout()" class="text-xs text-white/40 hover:text-red-500 transition-colors">Sair</button>
+      </div>
+  </nav>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-zinc-900 p-8 rounded-3xl border border-white/5">
-                <p class="text-[10px] text-white/40 uppercase tracking-widest">Faturamento</p>
-                <h3 class="text-3
+  <main class="p-6 max-w-7xl mx-auto w-full space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="bg-[#111111] border border-white/5 p-6 rounded-3xl">
+              <p class="text-[10px] text-white/40 uppercase tracking-widest mb-2">Vendas/Mês</p>
+              <h2 id="stat-vendas" class="text-2xl font-syne font-bold text-[#e8ff47]">R$ 0,00</h2>
+          </div>
+          <div class="bg-[#111111] border border-white/5 p-6 rounded-3xl">
+              <p class="text-[10px] text-white/40 uppercase tracking-widest mb-2">Afiliados Ativos</p>
+              <h2 id="stat-ativos" class="text-2xl font-syne font-bold">0</h2>
+          </div>
+          <div class="bg-[#111111] border border-white/5 p-6 rounded-3xl col-span-2">
+              <p class="text-[10px] text-white/40 uppercase tracking-widest mb-2">Progresso da Meta</p>
+              <div class="w-full bg-white/5 h-2 rounded-full mt-4">
+                  <div id="meta-bar" class="bg-[#e8ff47] h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+              </div>
+          </div>
+      </div>
+
+      <div class="bg-[#111111] border border-white/5 rounded-3xl overflow-hidden">
+          <div class="p-6 border-b border-white/5 flex justify-between items-center">
+              <h3 class="font-syne font-bold uppercase text-xs tracking-widest">Performance de Afiliados</h3>
+              <button class="text-[10px] bg-[#e8ff47]/10 text-[#e8ff47] px-3 py-1 rounded-full uppercase font-bold">Atualizado</button>
+          </div>
+          <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                  <thead class="text-[10px] text-white/30 uppercase tracking-widest border-b border-white/5">
+                      <tr>
+                          <th class="p-6">@TikTok</th>
+                          <th class="p-6">Nome</th>
+                          <th class="p-6">Status</th>
+                          <th class="p-6 text-right">Vendas</th>
+                      </tr>
+                  </thead>
+                  <tbody id="lista-afiliados" class="text-sm text-white/70">
+                      </tbody>
+              </table>
+          </div>
+      </div>
+  </main>
+</div>
+
+<script>
+// Configurações do Supabase (Substitua se necessário)
+const SUPABASE_URL = 'https://gxuhlndisvpelnjunhgc.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4dWhsbmRpc3ZwZWxuanVuaGdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MTUyMzgsImV4cCI6MjA5MDk5MTIzOH0.x6swLKQNRAWupZ14c0TSqjpO1N0oQ-EfSgd3sgINIIY';
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+async function handleLogin() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('pass').value;
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+    if (error) {
+        document.getElementById('login-error').classList.remove('hidden');
+    } else {
+        showDashboard(data.user);
+    }
+}
+
+function showDashboard(user) {
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+    document.getElementById('user-display').textContent = user.email;
+    loadData();
+}
+
+async function loadData() {
+    // Exemplo de busca de dados reais
+    const { data: afiliados } = await supabaseClient.from('afiliados').select('*').limit(10);
+    
+    const tbody = document.getElementById('lista-afiliados');
+    if (afiliados) {
+        tbody.innerHTML = afiliados.map(af => `
+            <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                <td class="p-6 text-[#e8ff47] font-medium">@${af.username_tiktok || 'sem_user'}</td>
+                <td class="p-6">${af.nome_real || 'N/A'}</td>
+                <td class="p-6"><span class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>${af.status_ativacao}</span></td>
+                <td class="p-6 text-right font-syne font-bold text-white">R$ ${af.total_vendas_acumulado || '0,00'}</td>
+            </tr>
+        `).join('');
+    }
+}
+
+function logout() {
+    supabaseClient.auth.signOut();
+    location.reload();
+}
+
+// Verifica sessão ao carregar
+window.onload = async () => {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) showDashboard(session.user);
+};
+</script>
+</body>
+</html>
